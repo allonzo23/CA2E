@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_ca2e
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker  # à changer si besoin
+      POSTGRES_DB: CA2E
+    ports:
+      - "5433:5432"   # <=== port interne Docker 5432 exposé sur l'hôte 5433 pour éviter conflit
+    volumes:
+      - ca2e_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./mon_backend
+      dockerfile: Dockerfile
+    container_name: backend_ca2e
+    restart: unless-stopped
+    env_file:
+      - ./mon_backend/.env
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build:
+      context: ./mon_frontend_react
+      dockerfile: Dockerfile
+    container_name: frontend_ca2e
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  ca2e_pgdata:
