@@ -31,16 +31,26 @@ jobs:
       # 4️⃣ Construire et pousser l'image backend
       - name: Build and push backend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest ./backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest ./mon_backend
           docker push ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest
 
       # 5️⃣ Construire et pousser l'image frontend
       - name: Build and push frontend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest ./frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest ./mon_frontend_react
           docker push ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest
 
-      # 6️⃣ Déployer sur le serveur via SSH
+      # 6️⃣ Tester la connexion SSH
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "Connexion SSH réussie !"
+
+      # 7️⃣ Déployer sur le serveur via Docker Compose
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -50,4 +60,4 @@ jobs:
           script: |
             cd /chemin/vers/ton/projet
             docker compose pull
-            docker compose up -d
+            docker compose up -d --remove-orphans
