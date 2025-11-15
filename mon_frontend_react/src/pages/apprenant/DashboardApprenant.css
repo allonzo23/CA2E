@@ -1,0 +1,144 @@
+/* --- CONTAINER GLOBAL --- */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f8;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #2c3e50, #34495e);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px 10px;
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-title {
+  font-size: 1.6rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+}
+
+.sidebar-item {
+  width: 100%;
+  text-align: center;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar-item .icon {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+}
+
+.sidebar-item .label {
+  font-size: 0.95rem;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.sidebar-item.active {
+  background: #1abc9c;
+  border-radius: 8px;
+}
+
+/* --- BOUTON DECONNEXION --- */
+.logout-btn {
+  margin-top: auto;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  width: 90%;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+}
+
+/* --- CONTENU PRINCIPAL --- */
+.main-content {
+  flex: 1;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.edit-btn {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.edit-btn:hover {
+  background: #2980b9;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 900px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+  }
+
+  .sidebar-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .sidebar-item {
+    flex: 1;
+    padding: 10px 0;
+  }
+
+  .sidebar-item .label {
+    font-size: 0.8rem;
+  }
+
+  .logout-btn {
+    width: auto;
+    margin: 10px 0;
+  }
+}
