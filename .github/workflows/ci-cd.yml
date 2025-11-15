@@ -8,6 +8,7 @@ on:
     branches:
       - main
 # c'est travail
+workflow_dispatch:  # ← ajoute cette ligne
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -25,8 +26,9 @@ jobs:
       - name: Docker login
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+            host: ${{ secrets.SERVER_HOST }}
+            username: ${{ secrets.SERVER_USER }}
+            key: ${{ secrets.SERVER_SSH_KEY }}
 
       # 4️⃣ Construire et pousser l'image backend
       - name: Build and push backend image
