@@ -8,7 +8,7 @@ on:
     branches:
       - main
 # c'est travail
-workflow_dispatch:  # ← ajoute cette ligne
+  workflow_dispatch:  # ← ajoute cette ligne
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
