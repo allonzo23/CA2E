@@ -7,8 +7,8 @@ on:
   pull_request:
     branches:
       - main
-# c'est travail
-  workflow_dispatch:  # ← ajoute cette ligne
+  workflow_dispatch:  # Permet de déclencher manuellement le workflow
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -26,9 +26,8 @@ jobs:
       - name: Docker login
         uses: docker/login-action@v2
         with:
-            host: ${{ secrets.SERVER_HOST }}
-            username: ${{ secrets.SERVER_USER }}
-            key: ${{ secrets.SERVER_SSH_KEY }}
+          username: ${{ secrets.DOCKER_USERNAME }}   # Docker Hub username
+          password: ${{ secrets.DOCKER_PASSWORD }}   # Docker Hub password ou PAT
 
       # 4️⃣ Construire et pousser l'image backend
       - name: Build and push backend image
@@ -42,7 +41,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest ./mon_frontend_react
           docker push ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest
 
-      # 6️⃣ Tester la connexion SSH
+      # 6️⃣ Tester la connexion SSH vers le serveur
       - name: Test SSH connection
         uses: appleboy/ssh-action@v0.1.9
         with:
