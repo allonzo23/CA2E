@@ -63,6 +63,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd /root/CA2E   # ou le chemin de ton projet sur le VPS
+            cd /home/yhas/CA2E   # ou le chemin de ton projet sur le VPS
             docker compose pull
             docker compose up -d --remove-orphans
