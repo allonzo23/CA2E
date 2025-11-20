@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  BCRYPT_SALT_ROUNDS: "10"
+  DB_DATABASE: CA2E
+  DB_HOST: db
+  DB_PASSWORD: docker
+  DB_PORT: "5432"
+  DB_USER: postgres
+  JWT_EXPIRATION: 2h
+  JWT_QR_SECRET: change_this_secret
+  JWT_SECRET: change_this_secret
+  PORT: "3001"
+  systemGENERATE_SOURCEMAP: "false"
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: backend-backend-env
+  name: backend-env

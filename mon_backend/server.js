@@ -20,12 +20,23 @@ dotenv.config();
 const app = express();
 
 // ✅ Autoriser toutes les origines (ou remplacer par l'IP front-end)
+// ✅ Remplacer * par l'URL de ton frontend
+const allowedOrigins = ["http://185.229.224.232:3000"];
+
 app.use(cors({
-  origin: "*",
-  credentials: true,
+  origin: function(origin, callback){
+    // autorise Postman ou requêtes sans origin
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1){
+      const msg = 'CORS policy: This origin is not allowed';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // autorise cookies / auth
 }));
 
-app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
