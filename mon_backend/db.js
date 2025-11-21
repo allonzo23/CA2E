@@ -1,4 +1,4 @@
-import pg from "pg";
+//import pg from "pg";
 //import dotenv from "dotenv";
 
 //dotenv.config();
@@ -16,6 +16,15 @@ export const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+pool.connect()
+.then(client => {
+    console.log("connexion à la DB reussite !");
+    client.release();
+})
+.catch(err => console.error("Erreur de connexion aux DB", err.stack));
+
+export default pool;
 
 /*
 const { Pool } = pg;
@@ -36,12 +45,3 @@ const pool = new Pool({
     database: process.env.DB_NAME,
 });
 */
-
-pool.connect()
-.then(client => {
-    console.log("connexion à la DB reussite !");
-    client.release();
-})
-.catch(err => console.error("Erreur de connexion aux DB", err.stack));
-
-export default pool;
