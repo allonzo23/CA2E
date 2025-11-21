@@ -21,7 +21,10 @@ const app = express();
 
 // ✅ Autoriser toutes les origines (ou remplacer par l'IP front-end)
 // ✅ Remplacer * par l'URL de ton frontend
-const allowedOrigins = ["http://185.229.224.232:3000"];
+const allowedOrigins = [
+  "http://185.229.224.232:8080",
+  "http://localhost:3000"
+];
 
 app.use(cors({
   origin: function(origin, callback){
