@@ -13,6 +13,7 @@ services:
       - "5433:5432"   # <=== port interne Docker 5432 exposé sur l'hôte 5433 pour éviter conflit
     volumes:
       - ca2e_pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
 
   backend:
     build:
