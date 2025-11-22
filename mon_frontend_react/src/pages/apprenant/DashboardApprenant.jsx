@@ -69,7 +69,7 @@ export default function DashboardApprenant() {
     <div className="dashboard-container">
       {/* --- SIDEBAR --- */}
       <aside className="sidebar">
-        <h2 className="sidebar-title">Apprenant</h2>
+        <h2 className="sidebar-title">Apprentis</h2>
         <ul className="sidebar-menu">
           {menuItems.map((item) => (
             <li
