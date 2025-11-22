@@ -2,7 +2,7 @@ name: CI/CD Pipeline CA2E
 
 on:
   push:
-    branches: 
+    branches:
       - main
   pull_request:
     branches:
@@ -12,9 +12,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Récupérer le code
+      # 1️⃣ Checkout du code
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -22,26 +21,41 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # 3️⃣ Se connecter à Docker Hub
+      # 3️⃣ Docker login
       - name: Docker login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 4️⃣ Construire et pousser l'image backend
-      - name: Build and push backend image
+      # 4️⃣ Détecter changements backend et frontend
+      - name: Detect changed directories
+        id: changes
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest ./mon_backend
+          echo "BACKEND_CHANGED=false" >> $GITHUB_ENV
+          echo "FRONTEND_CHANGED=false" >> $GITHUB_ENV
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^backend/' ; then
+            echo "BACKEND_CHANGED=true" >> $GITHUB_ENV
+          fi
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^frontend/' ; then
+            echo "FRONTEND_CHANGED=true" >> $GITHUB_ENV
+          fi
+
+      # 5️⃣ Build et push backend si changement
+      - name: Build and push backend image
+        if: env.BACKEND_CHANGED == 'true'
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest
 
-      # 5️⃣ Construire et pousser l'image frontend
+      # 6️⃣ Build et push frontend si changement
       - name: Build and push frontend image
+        if: env.FRONTEND_CHANGED == 'true'
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest ./mon_frontend_react
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest
 
-      # 6️⃣ Tester la connexion SSH vers le serveur avec debug
+      # 7️⃣ Tester SSH
       - name: Test SSH connection
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -49,12 +63,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          script: |
-            echo "SSH OK"
+          script: echo "SSH OK"
           debug: true
 
-
-      # 7️⃣ Déployer sur le serveur via Docker Compose
+      # 8️⃣ Déployer sur le VPS
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -64,12 +76,6 @@ jobs:
           port: 22
           script: |
             cd /home/yhas/CA2E
-            docker compose down
+            docker compose down --remove-orphans
             docker compose pull
-            docker compose up -d --remove-orphans
-                  
-           # cd /home/yhas/CA2E   # ou le chemin de ton projet sur le VPS
-            #docker compose pull
-            #docker compose down             # Arrête et supprime les containers actuels
-            #docker compose up -d 
-           # docker compose up -d --remove-orphans
+            docker compose up -d --build --remove-orphans

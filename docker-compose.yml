@@ -19,6 +19,7 @@ services:
     build:
       context: ./mon_backend
       dockerfile: Dockerfile
+      network: host   # Permet npm install lors du build
     container_name: backend_ca2e
     restart: unless-stopped
     env_file:
@@ -32,6 +33,7 @@ services:
     build:
       context: ./mon_frontend_react
       dockerfile: Dockerfile
+      network: host   # Permet npm install lors du build
     container_name: frontend_ca2e
     restart: unless-stopped
     depends_on:

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaBook, FaUsers, FaClipboardList } from "react-icons/fa";
+import api from "../../api/api";
 import { useDashboard } from "../../context/DashboardContext";
 
 function HomeFormateur() {
