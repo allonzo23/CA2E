@@ -22,7 +22,7 @@ const app = express();
 // ✅ Autoriser toutes les origines (ou remplacer par l'IP front-end)
 // ✅ Remplacer * par l'URL de ton frontend
 const allowedOrigins = [
-  "http://185.229.224.232:8080",
+  "http://185.229.224.232:80",
   "http://localhost:3000"
 ];
 
