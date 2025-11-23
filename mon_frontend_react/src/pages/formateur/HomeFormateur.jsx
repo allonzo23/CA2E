@@ -1,6 +1,6 @@
 // src/pages/formateur/HomeFormateur.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../api/api';
 import { FaBook, FaUsers, FaClipboardList } from "react-icons/fa";
 import api from "../../api/api";
 import { useDashboard } from "../../context/DashboardContext";
@@ -17,13 +17,13 @@ function HomeFormateur() {
 
     if (idFormateur) {
       // Appeler les statistiques du formateur
-      axios
-        .get(`http://localhost:3001/api/formateurs/${idFormateur}/stats`)
-        .then((res) => {
-          setStats(res.data);
+      api.get(`/formateurs/${idFormateur}/stats`)
+        .then(response => {
+          console.log('✅ Stats:', response.data);
+          // Votre code...
         })
-        .catch(() => {
-          setStats({ formations: 0, apprenants: 0, evaluations: 0 });
+        .catch(error => {
+          console.error('❌ Erreur stats:', error);
         });
     }
   }, []);
