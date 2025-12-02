@@ -63,6 +63,11 @@ app.use("/api/apprenants", apprenantRoutes);
 // Test simple
 app.get("/", (req, res) => res.send("API minimal gestion formation "));
 
+// Ajouter après les autres routes, avant app.listen()
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date() });
+});
+
 const PORT = process.env.PORT || 3001;
 
 // ✅ Écoute sur toutes les interfaces pour Docker

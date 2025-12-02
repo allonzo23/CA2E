@@ -1,14 +1,6 @@
 node_modules
-build
-dist
-
-.git
-.gitignore
-
-docker-compose.yml
-README.md
-
-# Optionnel
 npm-debug.log
-yarn-error.log
+Dockerfile
+docker-compose.yml
+.git
 .env
