@@ -1,22 +1,10 @@
-# Utiliser Node.js LTS
-FROM node:20-alpine
-
-# Créer le dossier de l'application
+FROM node:20-bullseye-slim
 WORKDIR /app
-
-# Copier package.json et package-lock.json pour installer les dépendances
 COPY package*.json ./
-
-# Installer toutes les dépendances
-RUN npm install
-
-# Copier tout le code source
+RUN apt-get update && \
+    apt-get install -y build-essential python3 curl && \
+    npm install && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY . .
-
-# Exposer le port défini dans .env
-ARG PORT=3001
-ENV PORT=${PORT}
-EXPOSE ${PORT}
-
-# Lancer l'application
+EXPOSE 3001
 CMD ["node", "server.js"]

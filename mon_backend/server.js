@@ -26,8 +26,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost',
-  'http://185.229.224.232',
-  'http://185.229.224.232:80',
+  'http://45.147.248.96',
+  'http://45.147.248.96:80',
   // Ajoutez d'autres origines si nécessaire
 ];
 
