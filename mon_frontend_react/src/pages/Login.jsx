@@ -91,7 +91,7 @@ function Login() {
             padding: "10px 20px",
             marginTop: "10px",
             backgroundColor: "#4a90e2",
-            color: "#FFF",
+            color: "green",
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
