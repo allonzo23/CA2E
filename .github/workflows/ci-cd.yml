@@ -62,5 +62,16 @@ jobs:
             echo "🚀 Starting containers..."
             docker compose up -d --remove-orphans
 
+            echo "📊 Starting monitoring..."
+            if [ -f docker-compose.monitoring.yml ]; then
+              docker compose -f docker-compose.monitoring.yml up -d
+              echo "✅ Monitoring started successfully"
+            else
+              echo "⚠️ docker-compose.monitoring.yml not found, skipping monitoring"
+            fi
+
             echo "📌 Status:"
             docker compose ps
+            echo ""
+            echo "📊 Monitoring Status:"
+            docker compose -f docker-compose.monitoring.yml ps 2>/dev/null || echo "No monitoring containers"
