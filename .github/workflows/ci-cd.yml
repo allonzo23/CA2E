@@ -70,8 +70,25 @@ jobs:
               echo "⚠️ docker-compose.monitoring.yml not found, skipping monitoring"
             fi
 
-            echo "📌 Status:"
-            docker compose ps
             echo ""
-            echo "📊 Monitoring Status:"
+            echo "📌 ===== CONTAINERS STATUS ====="
+            docker compose ps
+            
+            echo ""
+            echo "📊 ===== MONITORING STATUS ====="
             docker compose -f docker-compose.monitoring.yml ps 2>/dev/null || echo "No monitoring containers"
+            
+            echo ""
+            echo "🌐 ===== CONTAINERS WITH IPs ====="
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
+            
+            echo ""
+            echo "🔍 ===== NETWORK DETAILS ====="
+            docker network inspect ca2e_ca2e_network --format '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{println}}{{end}}'
+            
+            echo ""
+            echo "✅ ===== DEPLOYMENT COMPLETE ====="
+            echo "🌐 Application: http://${{ secrets.SERVER_HOST }}"
+            echo "📊 Grafana: http://${{ secrets.SERVER_HOST }}:3000"
+            echo "🔧 Portainer: http://${{ secrets.SERVER_HOST }}:9000"
+            echo "📈 Prometheus: http://${{ secrets.SERVER_HOST }}:9090"
