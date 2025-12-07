@@ -1,0 +1,550 @@
+/* ==================== MES FORMATIONS - VARIABLES ==================== */
+.mes-formations-container {
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --secondary-color: #2980b9;
+    --secondary-hover: #21618c;
+    --danger-color: #c0392b;
+    --danger-hover: #a93226;
+    --confirmed-color: #27ae60;
+    --pending-color: #f39c12;
+    --cancelled-color: #c0392b;
+    --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --border-color: #ddd;
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.2);
+    --border-radius: 10px;
+    --transition: all 0.3s ease;
+  }
+  
+  /* ==================== CONTAINER PRINCIPAL ==================== */
+  .mes-formations-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  /* ==================== HEADER ==================== */
+  .formations-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .formations-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  /* ==================== BOUTONS ==================== */
+  .btn-add-formation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .btn-add-formation:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-add-formation:active {
+    transform: translateY(0);
+  }
+  
+  /* ==================== ÉTATS DE CHARGEMENT ==================== */
+  .formations-loading,
+  .formations-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .formations-error p {
+    color: var(--danger-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .formations-error button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+  
+  .formations-error button:hover {
+    background: var(--primary-hover);
+  }
+  
+  /* ==================== ÉTAT VIDE ==================== */
+  .formations-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .formations-empty p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+  }
+  
+  .btn-add-first {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-add-first:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* ==================== GRILLE DES FORMATIONS ==================== */
+  .formations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* ==================== CARTE DE FORMATION ==================== */
+  .formation-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .formation-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+  
+  .formation-card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+  }
+  
+  .formation-titre {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  
+  /* ==================== INFO STATUT ==================== */
+  .formation-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .info-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  
+  .statut-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+  }
+  
+  .statut-confirmé {
+    background: #d4edda;
+    color: var(--confirmed-color);
+  }
+  
+  .statut-en-attente {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .statut-annulé {
+    background: #f8d7da;
+    color: var(--cancelled-color);
+  }
+  
+  /* ==================== BOUTON VOIR SÉANCES ==================== */
+  .btn-voir-seances {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--secondary-color), #3498db);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: calc(var(--border-radius) - 2px);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    margin-top: auto;
+  }
+  
+  .btn-voir-seances:hover {
+    background: linear-gradient(135deg, var(--secondary-hover), var(--secondary-color));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* ==================== MODAL OVERLAY ==================== */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* ==================== MODAL CONTENT ==================== */
+  .modal-content {
+    background: white;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  
+  .btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-close-modal:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+  
+  /* ==================== MODAL BODY ==================== */
+  .modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .seances-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem 0;
+  }
+  
+  .seances-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .seance-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: #f8f9fa;
+    border-radius: calc(var(--border-radius) - 4px);
+    padding: 1rem;
+    transition: var(--transition);
+  }
+  
+  .seance-item:hover {
+    background: #e9ecef;
+  }
+  
+  .seance-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  
+  .seance-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+  }
+  
+  .seance-date {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: capitalize;
+  }
+  
+  .seance-heure {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  /* ==================== MODAL FOOTER ==================== */
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .btn-fermer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--danger-color), #e74c3c);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    width: 100%;
+  }
+  
+  .btn-fermer:hover {
+    background: linear-gradient(135deg, var(--danger-hover), var(--danger-color));
+  }
+  
+  /* ==================== RESPONSIVE - TABLET ==================== */
+  @media (max-width: 1024px) {
+    .mes-formations-container {
+      padding: 1.5rem;
+    }
+  
+    .formations-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+  
+    .formations-header h2 {
+      font-size: 1.75rem;
+    }
+  }
+  
+  /* ==================== RESPONSIVE - MOBILE ==================== */
+  @media (max-width: 768px) {
+    .mes-formations-container {
+      padding: 1rem;
+    }
+  
+    .formations-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+  
+    .formations-header h2 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  
+    .btn-add-formation {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .formations-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  
+    .modal-content {
+      max-width: 95%;
+      max-height: 90vh;
+    }
+  
+    .modal-header h3 {
+      font-size: 1.2rem;
+    }
+  
+    .seance-item {
+      padding: 0.875rem;
+    }
+  }
+  
+  /* ==================== RESPONSIVE - SMALL MOBILE ==================== */
+  @media (max-width: 480px) {
+    .mes-formations-container {
+      padding: 0.75rem;
+    }
+  
+    .formations-header h2 {
+      font-size: 1.3rem;
+    }
+  
+    .btn-add-formation span {
+      font-size: 0.9rem;
+    }
+  
+    .formation-card-content {
+      padding: 1.25rem;
+    }
+  
+    .formation-titre {
+      font-size: 1.15rem;
+    }
+  
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+      padding: 1rem;
+    }
+  
+    .seance-date {
+      font-size: 0.9rem;
+    }
+  
+    .seance-heure {
+      font-size: 0.85rem;
+    }
+  }
+  
+  /* ==================== ACCESSIBILITÉ ==================== */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  /* ==================== PRINT ==================== */
+  @media print {
+    .btn-add-formation,
+    .btn-voir-seances,
+    .btn-fermer,
+    .btn-close-modal,
+    .modal-overlay {
+      display: none !important;
+    }
+  
+    .formation-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  }

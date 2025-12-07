@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,6 +7,8 @@ import {
   FaSignOutAlt,
   FaUserEdit,
   FaQrcode,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 import HomeApprenant from "./HomeApprenant";
@@ -28,72 +29,169 @@ export default function DashboardApprenant() {
 
   const [modifierVisible, setModifierVisible] = useState(false);
   const [activeMenu, setActiveMenu] = useState("home");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const user = state.user;
 
-  // ✅ Synchronisation du token à l'ouverture de l'onglet
+  // Synchronisation du token à l'ouverture de l'onglet
   useEffect(() => {
     const tabId = getTabId();
     const token = sessionStorage.getItem(`token_${tabId}`);
 
-    // Si token absent mais user existe dans state, on le remet dans sessionStorage
     if (!token && user && state.token) {
       sessionStorage.setItem(`token_${tabId}`, state.token);
       console.log("🔹 Token synchronisé pour cet onglet :", state.token);
     }
   }, [user, state.token]);
 
-  // 🚦 Redirection si pas connecté
+  // Redirection si pas connecté
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
     }
   }, [loading, user, navigate]);
 
+  // Fermer la sidebar mobile lors du redimensionnement
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [sidebarOpen]);
+
+  // Désactiver le scroll du body quand la sidebar mobile est ouverte
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [sidebarOpen]);
+
+  // Gestion du changement de menu
+  const handleMenuClick = (key) => {
+    setActiveMenu(key);
+    setSidebarOpen(false);
+  };
+
+  // Mise à jour du profil utilisateur
   const handleUpdateUser = (updatedUser) => {
-    updateUser(updatedUser); // Met à jour DashboardContext + sessionStorage
+    updateUser(updatedUser);
     setModifierVisible(false);
   };
 
-  if (loading || !user) return <p>Chargement du profil...</p>;
+  // Affichage du chargement
+  if (loading || !user) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Chargement du profil...</p>
+      </div>
+    );
+  }
 
+  // Définition des éléments du menu
   const menuItems = [
     { key: "home", label: "Accueil", icon: <FaHome /> },
     { key: "mes-formations", label: "Mes Formations", icon: <FaBook /> },
-    { key: "mes-evaluations", label: "Mes Évaluations", icon: <FaClipboardList /> },
-    { key: "mes-accompagnements", label: "Mes Accompagnements", icon: <FaClipboardList /> },
+    { 
+      key: "mes-evaluations", 
+      label: "Mes Évaluations", 
+      icon: <FaClipboardList /> 
+    },
+    { 
+      key: "mes-accompagnements", 
+      label: "Mes Accompagnements", 
+      icon: <FaClipboardList /> 
+    },
     { key: "scanner-qr", label: "Scanner QR Code", icon: <FaQrcode /> },
   ];
 
   return (
     <div className="dashboard-container">
-      {/* --- SIDEBAR --- */}
-      <aside className="sidebar">
-        <h2 className="sidebar-title">Apprentis</h2>
-        <ul className="sidebar-menu">
-          {menuItems.map((item) => (
-            <li
-              key={item.key}
-              className={`sidebar-item ${activeMenu === item.key ? "active" : ""}`}
-              onClick={() => setActiveMenu(item.key)}
-            >
-              <span className="icon">{item.icon}</span>
-              <span className="label">{item.label}</span>
-            </li>
-          ))}
-        </ul>
+      {/* Overlay pour mobile */}
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-        <button className="logout-btn" onClick={logout}>
-          <FaSignOutAlt className="icon" /> Déconnexion
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="sidebar-header">
+          <h2 className="sidebar-title">Apprentis</h2>
+          <button 
+            className="sidebar-close"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Fermer le menu"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
+        <nav aria-label="Menu principal">
+          <ul className="sidebar-menu">
+            {menuItems.map((item) => (
+              <li key={item.key}>
+                <button
+                  className={`sidebar-item ${
+                    activeMenu === item.key ? "active" : ""
+                  }`}
+                  onClick={() => handleMenuClick(item.key)}
+                  aria-current={activeMenu === item.key ? "page" : undefined}
+                >
+                  <span className="icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                  <span className="label">{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <button 
+          className="logout-btn" 
+          onClick={logout}
+          aria-label="Se déconnecter"
+          title="Déconnexion"
+        >
+          <FaSignOutAlt aria-hidden="true" />
         </button>
       </aside>
 
-      {/* --- CONTENU PRINCIPAL --- */}
+      {/* CONTENU PRINCIPAL */}
       <div className="main-content">
         <header className="dashboard-header">
-          <h1>Tableau de bord Apprenant</h1>
-          <button className="edit-btn" onClick={() => setModifierVisible(true)}>
-            <FaUserEdit className="icon" /> Modifier mes infos
+          <div className="header-left">
+            <button 
+              className="menu-toggle"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Ouvrir le menu"
+              aria-expanded={sidebarOpen}
+            >
+              <FaBars />
+            </button>
+            <h1>Tableau de bord Apprenant</h1>
+          </div>
+          
+          <button 
+            className="edit-btn" 
+            onClick={() => setModifierVisible(true)}
+            aria-label="Modifier mes informations"
+          >
+            <FaUserEdit className="icon" aria-hidden="true" /> 
+            <span className="edit-btn-text">Modifier mes infos</span>
           </button>
         </header>
 
@@ -101,12 +199,14 @@ export default function DashboardApprenant() {
           {activeMenu === "home" && <HomeApprenant user={user} />}
           {activeMenu === "mes-formations" && <MesFormations user={user} />}
           {activeMenu === "mes-evaluations" && <MesEvaluations user={user} />}
-          {activeMenu === "mes-accompagnements" && <AccompagnementApprenant user={user} />}
+          {activeMenu === "mes-accompagnements" && (
+            <AccompagnementApprenant user={user} />
+          )}
           {activeMenu === "scanner-qr" && <PresenceScan />}
         </main>
       </div>
 
-      {/* Modal de modification */}
+      {/* Modal de modification du profil */}
       <ModifierApprenantModal
         isOpen={modifierVisible}
         user={user}
