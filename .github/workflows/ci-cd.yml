@@ -26,21 +26,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 4️⃣ Build & Push Backend
+      # 4️⃣ Build & Push Backend (avec cache optimisé)
       - name: 🔨 Build and Push Backend
         uses: docker/build-push-action@v4
         with:
           context: ./mon_backend
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ca2e-backend:latest
+          cache-to: type=inline
 
-      # 5️⃣ Build & Push Frontend
+      # 5️⃣ Build & Push Frontend (avec cache optimisé)
       - name: 🎨 Build and Push Frontend
         uses: docker/build-push-action@v4
         with:
           context: ./mon_frontend_react
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ca2e-frontend:latest
+          cache-to: type=inline
 
       # 6️⃣ Deploy on VPS
       - name: 🚀 Deploy to VPS
@@ -53,22 +57,60 @@ jobs:
           script: |
             cd /home/yhas/CA2E
 
+            echo "📊 ===== DISK SPACE BEFORE CLEANUP ====="
+            df -h / | tail -1 | awk '{print "💾 Disk usage: " $3 " used / " $2 " total (" $5 " full)"}'
+            echo "🗂️  Docker images before: $(docker images | wc -l)"
+
+            echo ""
             echo "🛑 Stopping containers..."
             docker compose down --remove-orphans
+            docker compose -f docker-compose.monitoring.yml down 2>/dev/null || true
 
-            echo "⬇️ Pulling new images..."
+            echo ""
+            echo "🧹 ===== CLEANING OLD DOCKER DATA ====="
+            
+            # Supprime les images de plus de 48h
+            echo "🗑️  Removing images older than 48 hours..."
+            docker image prune -a -f --filter "until=48h"
+            
+            # Supprime les volumes non utilisés
+            echo "🗑️  Removing unused volumes..."
+            docker volume prune -f
+            
+            # Supprime les réseaux non utilisés
+            echo "🗑️  Removing unused networks..."
+            docker network prune -f
+            
+            # Supprime les conteneurs arrêtés
+            echo "🗑️  Removing stopped containers..."
+            docker container prune -f
+
+            echo ""
+            echo "📊 ===== DISK SPACE AFTER CLEANUP ====="
+            df -h / | tail -1 | awk '{print "💾 Disk usage: " $3 " used / " $2 " total (" $5 " full)"}'
+            echo "🗂️  Docker images after: $(docker images | wc -l)"
+            echo "🎯 Dangling images: $(docker images -f 'dangling=true' -q | wc -l)"
+
+            echo ""
+            echo "⬇️  Pulling new images from Docker Hub..."
             docker compose pull
 
-            echo "🚀 Starting containers..."
+            echo ""
+            echo "🚀 Starting application containers..."
             docker compose up -d --remove-orphans
 
-            echo "📊 Starting monitoring..."
+            echo ""
+            echo "📊 Starting monitoring stack..."
             if [ -f docker-compose.monitoring.yml ]; then
               docker compose -f docker-compose.monitoring.yml up -d
               echo "✅ Monitoring started successfully"
             else
-              echo "⚠️ docker-compose.monitoring.yml not found, skipping monitoring"
+              echo "⚠️  docker-compose.monitoring.yml not found, skipping monitoring"
             fi
+
+            echo ""
+            echo "⏳ Waiting for containers to stabilize (15 seconds)..."
+            sleep 15
 
             echo ""
             echo "📌 ===== CONTAINERS STATUS ====="
@@ -76,19 +118,54 @@ jobs:
             
             echo ""
             echo "📊 ===== MONITORING STATUS ====="
-            docker compose -f docker-compose.monitoring.yml ps 2>/dev/null || echo "No monitoring containers"
+            docker compose -f docker-compose.monitoring.yml ps 2>/dev/null || echo "⚠️  No monitoring containers"
             
             echo ""
-            echo "🌐 ===== CONTAINERS WITH IPs ====="
+            echo "🌐 ===== RUNNING CONTAINERS WITH PORTS ====="
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
             
             echo ""
             echo "🔍 ===== NETWORK DETAILS ====="
-            docker network inspect ca2e_ca2e_network --format '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{println}}{{end}}'
+            docker network inspect ca2e_ca2e_network --format '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{println}}{{end}}' 2>/dev/null || echo "⚠️  Network not found or empty"
+            
+            echo ""
+            echo "🏥 ===== HEALTH CHECK ====="
+            
+            # Vérifie si les conteneurs principaux tournent
+            BACKEND_STATUS=$(docker inspect -f '{{.State.Status}}' backend_ca2e 2>/dev/null || echo "not found")
+            FRONTEND_STATUS=$(docker inspect -f '{{.State.Status}}' frontend_ca2e 2>/dev/null || echo "not found")
+            POSTGRES_STATUS=$(docker inspect -f '{{.State.Status}}' postgres_ca2e 2>/dev/null || echo "not found")
+            
+            echo "Backend:  $BACKEND_STATUS"
+            echo "Frontend: $FRONTEND_STATUS"
+            echo "Postgres: $POSTGRES_STATUS"
+            
+            # Alerte si un service critique est down
+            if [ "$BACKEND_STATUS" != "running" ] || [ "$FRONTEND_STATUS" != "running" ] || [ "$POSTGRES_STATUS" != "running" ]; then
+              echo ""
+              echo "⚠️  WARNING: Some critical services are not running!"
+              echo "Check logs with: docker logs <container_name>"
+            fi
+
+            echo ""
+            echo "📊 ===== FINAL DISK USAGE ====="
+            df -h / | tail -1 | awk '{
+              if (substr($5, 1, length($5)-1) > 85) 
+                print "🔴 CRITICAL: Disk usage at " $5 " - Consider cleanup or expansion!"
+              else if (substr($5, 1, length($5)-1) > 70)
+                print "⚠️  WARNING: Disk usage at " $5 " - Monitor closely"
+              else
+                print "✅ OK: Disk usage at " $5
+            }'
             
             echo ""
             echo "✅ ===== DEPLOYMENT COMPLETE ====="
-            echo "🌐 Application: http://${{ secrets.SERVER_HOST }}"
-            echo "📊 Grafana: http://${{ secrets.SERVER_HOST }}:3000"
-            echo "🔧 Portainer: http://${{ secrets.SERVER_HOST }}:9000"
-            echo "📈 Prometheus: http://${{ secrets.SERVER_HOST }}:9090"
+            echo "🌐 Application:  http://${{ secrets.SERVER_HOST }}"
+            echo "📊 Grafana:      http://${{ secrets.SERVER_HOST }}:3000 (admin/admin)"
+            echo "🔧 Portainer:    http://${{ secrets.SERVER_HOST }}:9000"
+            echo "📈 Prometheus:   http://${{ secrets.SERVER_HOST }}:9090"
+            echo ""
+            echo "💡 Tips:"
+            echo "  - Check logs: docker logs <container_name>"
+            echo "  - Restart: docker compose restart <service_name>"
+            echo "  - Manual cleanup: docker system prune -a -f"
